@@ -1,16 +1,18 @@
-FROM golang:1.8
+FROM golang:1.8-alpine
 
 RUN mkdir -p /go/src/app
 WORKDIR /go/src/app
 
-RUN go get -u github.com/golang/dep/cmd/dep github.com/codegangsta/gin
+RUN apk --no-cache add curl git mercurial bzr && \
+    go get -u github.com/golang/dep/cmd/dep github.com/codegangsta/gin
 
-ENV GOPATH /go/src/app/.gopath:/go/src/app/vendor:$GOPATH
-
+ENV APP_NAME app
 ENV APP_PORT 8080
 ENV PROXY_PORT 3000
 
-ADD entrypoint.sh /
-RUN chmod 755 /entrypoint.sh && chmod +x /entrypoint.sh
+ENV VERBOSE false
 
-ENTRYPOINT ["/entrypoint.sh"]
+ADD entrypoint.py /
+RUN chmod 755 /entrypoint.py && chmod +x /entrypoint.py
+
+ENTRYPOINT ["/entrypoint.py"]
